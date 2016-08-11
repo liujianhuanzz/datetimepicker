@@ -1,2 +1,2 @@
 # datetimepicker
-first commit 
+本项目的最终目的是实现一个功能丰富的日历插件。
