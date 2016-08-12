@@ -1,0 +1,101 @@
+/*空白的底层容器*/
+.blankPanel{
+	width: 260px;
+	/*height: 260px;*/
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0px 0px 3px #ccc;
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-family: "Microsoft Yahei";
+	-webkit-user-select:none;
+}
+/*头部显示年月*/
+.headYearMonth{
+	width: calc(100% - 0px);
+	height: 40px;
+	border-radius: 3px;
+}
+/*年份，月份左右翻页样式*/
+.switchBtn{
+	float: left;
+	width: calc(10% - 0px);
+	height: 40px;
+	line-height: 40px;
+	color: #000;
+	font-weight: bold;
+	text-align: center;
+	border-radius: 3px;
+}
+.switchBtn:hover{
+	cursor: pointer;
+	background-color: #337ab7;
+	color: #fff;
+}
+/*年月显示区域*/
+.show{
+	float: left;
+	height: 40px;
+	line-height: 40px;
+	color: #000;
+	font-weight: bold;
+	text-align: center;
+	border-radius: 3px;
+}
+.yearShow{
+	width: calc(40% - 0px);
+}
+.monthShow{
+	width: calc(20% - 0px);
+}
+.show:hover{
+	cursor: pointer;
+	background-color: #337ab7;
+	color: #fff;
+}
+/*星期几显示区域和日期显示区域*/
+.dayContainer{
+	width: calc(100% - 8px);
+	height: 30px;
+	padding: 0px 4px 0px 4px 
+}
+.dayInfo{
+	float: left;
+	width: 36px;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	font-weight: bolder;
+}
+.dateContainer{
+	width: calc(100% - 8px);
+	height: 190px;
+	padding: 0px 4px 0px 4px 
+}
+.dateInfo{
+	float: left;
+	width: 36px;
+	height: 36px;
+	line-height: 36px;
+	text-align: center;
+}
+.prevMonthDate,.nextMonthDate{
+	color: #ccc;
+}
+.currMonthDate{
+	color: #000;
+}
+.prevMonthDate:hover,.nextMonthDate:hover,.currMonthDate:hover{
+	cursor: pointer;
+}
+.currMonthDate:hover{
+	color: #fff;
+	background-color: #337ab7;
+	border-radius: 3px;
+}
+.currMonthDate.currDate{
+	background-color: #ccc;
+	border-radius: 3px;
+}

@@ -1,0 +1,36 @@
+{
+  "name": "datetimepicker",
+  "version": "0.0.1",
+  "description": "a plugin for date_time_select",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liujianhuanzz/datetimepicker.git"
+  },
+  "keywords": [
+    "datetimepicker"
+  ],
+  "author": "Jianhuan Liu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liujianhuanzz/datetimepicker/issues"
+  },
+  "homepage": "https://github.com/liujianhuanzz/datetimepicker#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-jshint": "^2.0.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-notify": "^2.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-ruby-sass": "^2.0.6",
+    "gulp-uglify": "^2.0.0",
+    "jquery": "^3.1.0",
+    "jshint": "^2.9.2",
+    "sass": "^0.5.0"
+  }
+}

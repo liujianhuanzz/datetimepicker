@@ -1,0 +1,13 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+#datetimepicker{
+	width: 200px;
+	height: 50px;
+	line-height: 50px;
+	border: 1px solid #ccc;
+	position: relative;
+	margin: 20px 0px 0px 20px;
+	font-family: "Microsoft Yahei";
+}
