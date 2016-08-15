@@ -545,65 +545,67 @@ Calender.prototype.createBtnInfo = function(containerObj) {
 //创建时间区域
 Calender.prototype.createTimeInfo = function(containerObj) {
 	var self = this;
-	//创建时间信息容器
-	var timeContainer = document.createElement("div");
-	timeContainer.className = "timeContainer";
-	containerObj.appendChild(timeContainer);
-	//创建所选择的时间show容器
-	var timeShow = document.createElement("div");
-	timeShow.className = "timeShow";
-	timeShow.innerHTML = "<span class='hourShow'>"+self.currTime["hour"]+"</span>:"+
-						 "<span class='minuteShow'>"+self.currTime["minute"]+"</span>:"+
-						 "<span class='secondShow'>"+self.currTime["second"]+"</span>";
-	timeContainer.appendChild(timeShow);
+	//如果是区间日期选择，则不添加时间选择功能
+	if(!self.initConfig["dateZoom"]){
+		//创建时间信息容器
+		var timeContainer = document.createElement("div");
+		timeContainer.className = "timeContainer";
+		containerObj.appendChild(timeContainer);
+		//创建所选择的时间show容器
+		var timeShow = document.createElement("div");
+		timeShow.className = "timeShow";
+		timeShow.innerHTML = "<span class='hourShow'>"+self.currTime["hour"]+"</span>:"+
+							 "<span class='minuteShow'>"+self.currTime["minute"]+"</span>:"+
+							 "<span class='secondShow'>"+self.currTime["second"]+"</span>";
+		timeContainer.appendChild(timeShow);
 
-	for(var i=0; i<3; i++){
-		//创建滑动选择时间的固定横轴
-		var timeFixedDiv = document.createElement("div");
-		timeFixedDiv.className = "timeFixedDiv";
-		timeContainer.appendChild(timeFixedDiv);
-		//创建滑动选择时间的移动块
-		var timeMovedDiv = document.createElement("div");
-		timeMovedDiv.className = "timeMovedDiv";
-		timeFixedDiv.appendChild(timeMovedDiv);
-	}
-
-	//为滑块绑定滑动事件
-
-	$(".timeMovedDiv").draggable({
-		'axis': "x",
-		'containment':".timeFixedDiv",
-		drag:function(events,ui){
-			var currMovedEle = ui.helper[0];//当前拖动元素
-			var allMovedELe = $(".timeMovedDiv");//所有可拖动的元素
-			var offsetLeft = currMovedEle.offsetLeft;//偏移父元素左端的距离
-			var index = Array.prototype.slice.call(allMovedELe).indexOf(currMovedEle);
-			//根据其父元素是否具有上下兄弟节点来判断其改变的是时分秒
-			//计算小时值
-			if(index === 0){
-				var hour = Util.calculateTime(offsetLeft,'hour');
-				$(".hourShow").html(hour);
-				//更改Calender对象中的时间属性
-				self.currTime["hour"] = hour;
-			}
-			//计算分钟值
-			else if(index === 1){
-				var minute = Util.calculateTime(offsetLeft,'minute');
-				$(".minuteShow").html(minute);
-				//更改Calender对象中的时间属性
-				self.currTime["minute"] = minute;
-			}
-			//计算秒钟值
-			else if(index === 2){
-				var second = Util.calculateTime(offsetLeft,'second');
-				$(".secondShow").html(second);
-				//更改Calender对象中的时间属性
-				self.currTime["second"] = second;
-			}
-			//更改Calender对象中的时间属性
+		for(var i=0; i<3; i++){
+			//创建滑动选择时间的固定横轴
+			var timeFixedDiv = document.createElement("div");
+			timeFixedDiv.className = "timeFixedDiv";
+			timeContainer.appendChild(timeFixedDiv);
+			//创建滑动选择时间的移动块
+			var timeMovedDiv = document.createElement("div");
+			timeMovedDiv.className = "timeMovedDiv";
+			timeFixedDiv.appendChild(timeMovedDiv);
 		}
-	})
 
+		//为滑块绑定滑动事件
+
+		$(".timeMovedDiv").draggable({
+			'axis': "x",
+			'containment':".timeFixedDiv",
+			drag:function(events,ui){
+				var currMovedEle = ui.helper[0];//当前拖动元素
+				var allMovedELe = $(".timeMovedDiv");//所有可拖动的元素
+				var offsetLeft = currMovedEle.offsetLeft;//偏移父元素左端的距离
+				var index = Array.prototype.slice.call(allMovedELe).indexOf(currMovedEle);
+				//根据其父元素是否具有上下兄弟节点来判断其改变的是时分秒
+				//计算小时值
+				if(index === 0){
+					var hour = Util.calculateTime(offsetLeft,'hour');
+					$(".hourShow").html(hour);
+					//更改Calender对象中的时间属性
+					self.currTime["hour"] = hour;
+				}
+				//计算分钟值
+				else if(index === 1){
+					var minute = Util.calculateTime(offsetLeft,'minute');
+					$(".minuteShow").html(minute);
+					//更改Calender对象中的时间属性
+					self.currTime["minute"] = minute;
+				}
+				//计算秒钟值
+				else if(index === 2){
+					var second = Util.calculateTime(offsetLeft,'second');
+					$(".secondShow").html(second);
+					//更改Calender对象中的时间属性
+					self.currTime["second"] = second;
+				}
+				//更改Calender对象中的时间属性
+			}
+		})
+	}
 	return self;
 };
 //创建年选择面板
