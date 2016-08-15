@@ -144,95 +144,147 @@ Calender.prototype.createHeadInfo = function(containerObj) {
 		var currAction = this.innerHTML;
 		//<<
 		if("&lt;&lt;" === currAction){
+			self.removeInit();
 			//获取当前显示的年份
 			var currShowYear = $(".yearShow").html();
 			//判断改变年份还是年区间
 			var index = currShowYear.indexOf("-");
 			if(index > -1){
-				//待完成
 				//年区间翻页
+				var initYear = parseInt(currShowYear.split("-")[0]) - 12;
+				self.createYearPanel($(".blankPanel")[0],initYear);
 			}else{
 				var previousYear = parseInt(currShowYear) - 1;
 				$(".yearShow").html(previousYear + "年");
+
+				//刷新日期面板
+				//更新calendar对象信息
+				self.currYear = previousYear;
+				//
+				reviseDateInfo();
 			}
-			//刷新日期面板
-			//更新calendar对象信息
-			self.currYear = previousYear;
-			//
-			self.createDateInfo($(".blankPanel")[0]);
 		}
 		//<
 		else if("&lt;" === currAction){
-			//获取当前显示的月份
-			var currShowMonth = $(".monthShow").html();
-			//判断改变月份
-			var previousMonth = parseInt(currShowMonth) - 1;
-			//如果preiviousMonth为0的话，上一年的最后一个月
-			if(0 === previousMonth){
-				//获取当前显示的年份
-				var currShowYear = $(".yearShow").html();
-				//改为上一年
-				var previousYear = parseInt(currShowYear) - 1;
-				$(".yearShow").html(previousYear + "年");
+			//如果被禁用了则不可点击
+			if(this.className.indexOf("not-allow-selected") === -1){
+				self.removeInit();
+				//获取当前显示的月份
+				var currShowMonth = $(".monthShow").html();
+				//判断改变月份
+				var previousMonth = parseInt(currShowMonth) - 1;
+				//如果preiviousMonth为0的话，上一年的最后一个月
+				if(0 === previousMonth){
+					//获取当前显示的年份
+					var currShowYear = $(".yearShow").html();
+					//改为上一年
+					var previousYear = parseInt(currShowYear) - 1;
+					$(".yearShow").html(previousYear + "年");
 
-				previousMonth = 12;
-				//更新calendar对象信息
+					previousMonth = 12;
+					//更新calendar对象信息
+					self.currMonth = previousMonth;
+					self.currYear = previousYear;
+				}
+				$(".monthShow").html(previousMonth + "月");
+				//刷新日期面板
 				self.currMonth = previousMonth;
-				self.currYear = previousYear;
+				//
+				reviseDateInfo();
+				//self.createDateInfo($(".blankPanel")[0]);
 			}
-			$(".monthShow").html(previousMonth + "月");
-			//刷新日期面板
-			self.currMonth = previousMonth;
-			//
-			self.createDateInfo($(".blankPanel")[0]);
 		}
 		//>
 		else if("&gt;" === currAction){
-			//获取当前显示的月份
-			var currShowMonth = $(".monthShow").html();
-			//判断改变月份
-			var nextMonth = parseInt(currShowMonth) + 1;
+			if(this.className.indexOf("not-allow-selected") === -1){
+				self.removeInit();
+				//获取当前显示的月份
+				var currShowMonth = $(".monthShow").html();
+				//判断改变月份
+				var nextMonth = parseInt(currShowMonth) + 1;
 
-			//如果preiviousMonth为13的话，下一年的第一个月
-			if(13 === nextMonth){
-				//获取当前显示的年份
-				var currShowYear = $(".yearShow").html();
-				//改为下一年
-				var nextYear = parseInt(currShowYear) + 1;
-				$(".yearShow").html(nextYear + "年");
+				//如果preiviousMonth为13的话，下一年的第一个月
+				if(13 === nextMonth){
+					//获取当前显示的年份
+					var currShowYear = $(".yearShow").html();
+					//改为下一年
+					var nextYear = parseInt(currShowYear) + 1;
+					$(".yearShow").html(nextYear + "年");
 
-				nextMonth = 1;
-				//更新calendar对象信息
+					nextMonth = 1;
+					//更新calendar对象信息
+					self.currMonth = nextMonth;
+					self.currYear = nextYear;
+				}
+				
+				$(".monthShow").html(nextMonth + "月");
+				//刷新日期面板
+				//
 				self.currMonth = nextMonth;
-				self.currYear = nextYear;
+
+				reviseDateInfo();
+				//self.createDateInfo($(".blankPanel")[0]);
 			}
-			
-			$(".monthShow").html(nextMonth + "月");
-			//刷新日期面板
-			//
-			self.currMonth = nextMonth;
-			self.createDateInfo($(".blankPanel")[0]);
 		}
 		//>>
 		else {
+			self.removeInit();
 			//获取当前显示的年份
 			var currShowYear = $(".yearShow").html();
 			//判断改变年份还是年区间
 			var index = currShowYear.indexOf("-");
 			if(index > -1){
-				//待完成
 				//年区间翻页
+				var initYear = parseInt(currShowYear.split("-")[0]) + 12;
+				self.createYearPanel($(".blankPanel")[0],initYear);
 			}else{
 				var nextYear = parseInt(currShowYear) + 1;
 				$(".yearShow").html(nextYear + "年");
-			}
 
-			//刷新日期面板
-			self.currYear = nextYear;
-			//
-			self.createDateInfo($(".blankPanel")[0]);
+				//刷新日期面板
+				self.currYear = nextYear;
+				//
+				reviseDateInfo();
+			}
 		}
 	})
+
+	//为年、月显示绑定事件
+	$(".show").on("click",function(e){
+
+		var e = e || window.events;
+		e.stopPropagation();
+		e.preventDefault();
+
+		self.removeInit();
+
+		//禁用月份翻页
+		var pageBtn = $(".switchBtn");
+		Array.prototype.slice.call(pageBtn).forEach(function(item){
+			if(item.innerHTML === "&lt;" || item.innerHTML === "&gt;"){
+				item.className += " not-allow-selected";
+			}
+		})
+
+		//点击年份
+		if(this.className.indexOf("yearShow") > -1 && this.innerHTML.indexOf("年") > -1){
+			var initYear = parseInt(self.currYear) - 7;
+			self.createYearPanel($(".blankPanel")[0],initYear);
+		}
+		//点击月份
+		else{
+			self.createMonthPanel($(".blankPanel")[0]);
+		}
+	})
+
+	function reviseDateInfo(){
+		var blankPanel = $(".blankPanel")[0];
+		if(self.date_type === 'Y-M-D'){
+			self.createDateInfo(blankPanel);
+		}else{
+			self.createDateInfo(blankPanel).createTimeInfo(blankPanel).createBtnInfo(blankPanel);
+		}
+	}
 
 	return self;
 };
@@ -241,7 +293,7 @@ Calender.prototype.createDateInfo = function(containerObj) {
 
 	var self = this;
 
-	$(".dayContainer,.dateContainer,.btnContainer").remove();
+	self.removeInit();
 	//创建星期几显示区域
 	var dayArr = ['日','一','二','三','四','五','六'];
 	//创建星期几容器
@@ -433,7 +485,7 @@ Calender.prototype.createDateInfo = function(containerObj) {
 
 	return self;
 };
-
+//创建确认和取消按钮
 Calender.prototype.createBtnInfo = function(containerObj) {
 	var self = this;
 	//添加确认和取消按钮
@@ -490,7 +542,7 @@ Calender.prototype.createBtnInfo = function(containerObj) {
 
 	return self;
 };
-
+//创建时间区域
 Calender.prototype.createTimeInfo = function(containerObj) {
 	var self = this;
 	//创建时间信息容器
@@ -554,7 +606,80 @@ Calender.prototype.createTimeInfo = function(containerObj) {
 
 	return self;
 };
+//创建年选择面板
+Calender.prototype.createYearPanel = function(containerObj,initYear) {
+	var self = this;
 
+	self.removeInit();
+	//创建年份面板容器
+	var yearSelectContainer = document.createElement("div");
+	yearSelectContainer.className = "yearSelectContainer";
+	containerObj.appendChild(yearSelectContainer);
+	//创建显示
+	for(var i=initYear; i<initYear+12; i++){
+		var eachYearEle = document.createElement("div");
+		eachYearEle.className = "eachYearEle";
+		eachYearEle.innerHTML = i;
+		yearSelectContainer.appendChild(eachYearEle);
+	}
+	//更改年份展示区域
+	$(".yearShow").html(initYear + "--" + (initYear+11));
+
+	//绑定点击事件
+	$(".eachYearEle").on("click",function(e){
+		var e = e || window.events;
+		e.stopPropagation();
+		e.preventDefault();
+		//更改Calendar对象属性
+		self.currYear = parseInt(this.innerHTML);
+		//生成月份
+		self.createMonthPanel($(".blankPanel")[0]);
+		//更改年份显示
+		$(".yearShow").html(self.currYear + "年");
+	});
+
+	return self;
+};
+//创建月份选择面板
+Calender.prototype.createMonthPanel = function(containerObj) {
+	var self = this;
+
+	self.removeInit();
+
+	//创建月份面板容器
+	var monthSelectContainer = document.createElement("div");
+	monthSelectContainer.className = "monthSelectContainer";
+	containerObj.appendChild(monthSelectContainer);
+	//创建显示
+	for(var i=0; i<12; i++){
+		var eachMonthEle = document.createElement("div");
+		eachMonthEle.className = "eachMonthEle";
+		eachMonthEle.innerHTML = (i+1)+"月";
+		monthSelectContainer.appendChild(eachMonthEle);
+	}
+
+	//绑定点击事件
+	$(".eachMonthEle").on("click",function(e){
+		var e = e || window.events;
+		e.stopPropagation();
+		e.preventDefault();
+		//更改Calendar对象属性
+		self.currMonth = parseInt(this.innerHTML.match(/^\d+/g)[0]);
+		//生成日期信息
+		var blankPanel = $(".blankPanel")[0]
+		self.createDateInfo(blankPanel).createTimeInfo(blankPanel).createBtnInfo(blankPanel);
+		//更改月份显示
+		$(".monthShow").html(self.currMonth + "月");
+		//释放月份翻页的禁用状态
+		$(".switchBtn.not-allow-selected").removeClass("not-allow-selected");
+	});
+
+	return self;
+};
+Calender.prototype.removeInit= function() {
+	//先移除日期面板
+	$(".dayContainer,.dateContainer,.timeContainer,.btnContainer,.yearSelectContainer,.monthSelectContainer").remove();
+};
 var Util = {
 	//计算每个月有几天
 	howManyDate:function(year,month){

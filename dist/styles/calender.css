@@ -71,8 +71,9 @@
 }
 .dateContainer{
 	width: calc(100% - 8px);
-	height: 180px;
+	/*height: 180px;*/
 	padding: 0px 4px 0px 4px ;
+	overflow: hidden;
 }
 .dateInfo{
 	float: left;
@@ -109,6 +110,8 @@
 }
 .not-allow-selected:hover{
 	cursor: not-allowed;
+	background-color: #fff;
+	color: #ccc;
 }
 /*日期区间选择特殊样式*/
 .currSingleDate,.dateZoomStyle{
@@ -160,5 +163,19 @@
 }
 .timeMovedDiv:hover{
 	cursor: move;
+	background-color: #337ab7;
+}
+/*年份面板样式*/
+.eachYearEle,.eachMonthEle{
+	width: 65px;
+	height: 68px;
+	float: left;
+	text-align: center;
+	line-height: 68px;
+	border-radius: 10px;
+}
+.eachYearEle:hover,.eachMonthEle:hover{
+	cursor: pointer;
+	color: #fff;
 	background-color: #337ab7;
 }
