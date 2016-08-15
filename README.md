@@ -13,7 +13,7 @@
 
 # 操作图示 #
 
-![](http://p7.qhimg.com/t01d6472c0f92687d03.png)
+![](http://i.imgur.com/iZHUPCz.png)
 
 # API 实例 #
 
