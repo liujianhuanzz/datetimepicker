@@ -71,22 +71,26 @@
 }
 .dateContainer{
 	width: calc(100% - 8px);
-	height: 190px;
-	padding: 0px 4px 0px 4px 
+	height: 180px;
+	padding: 0px 4px 0px 4px ;
 }
 .dateInfo{
 	float: left;
 	width: 36px;
-	height: 36px;
-	line-height: 36px;
+	height: 34px;
+	line-height: 34px;
 	text-align: center;
 }
+/*上个月和下个月日期样式*/
 .prevMonthDate,.nextMonthDate{
 	color: #ccc;
 }
+
+/*本月日期样式*/
 .currMonthDate{
 	color: #000;
 }
+/*除去禁止日期，所有日期的hover事件*/
 .prevMonthDate:hover,.nextMonthDate:hover,.currMonthDate:hover{
 	cursor: pointer;
 }
@@ -95,7 +99,66 @@
 	background-color: #337ab7;
 	border-radius: 3px;
 }
-.currMonthDate.currDate{
+.currDate{
 	background-color: #ccc;
 	border-radius: 3px;
+}
+/*禁止选中的日期样式*/
+.not-allow-selected{
+	color: #ccc;
+}
+.not-allow-selected:hover{
+	cursor: not-allowed;
+}
+/*日期区间选择特殊样式*/
+.currSingleDate,.dateZoomStyle{
+	color: #fff;
+	background-color: rgba(51,122,183,.35);
+	border-radius: 3px;
+}
+/*确认和取消按钮*/
+.btn{
+	float: left;
+	width: 96px;
+	height: 36px;
+	line-height: 36px;
+	text-align: center;
+	margin: 0px 15px;
+	border:2px solid #ccc;
+	border-radius: 8px;
+}
+.btn:hover{
+	cursor: pointer;
+	color: #fff;
+	background-color: #337ab7;
+}
+/*时间选择 的样式*/
+.timeContainer{
+	width: calc(100% - 8px);
+	/*height: 40px;*/
+	padding: 0px 4px 0px 4px; 
+}
+.timeShow{
+	width: calc(100% - 4px);
+	height: 32px;
+	text-align: center;
+}
+.timeFixedDiv{
+	position: relative;
+	width: calc(100% - 4px);
+	height: 12px;
+	margin: 12px 0px 12px 0px;
+	background-color: #ccc;
+}
+.timeMovedDiv{
+	position: absolute;
+	width: 6px;
+	height: 20px;
+	background-color: #ccc;
+	left: 0px;
+	top:-4px;
+}
+.timeMovedDiv:hover{
+	cursor: move;
+	background-color: #337ab7;
 }

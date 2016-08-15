@@ -6,13 +6,19 @@
 <link rel="stylesheet" type="text/css" href="test.css">
 <link rel="stylesheet" type="text/css" href="../dist/styles/calender.css">
 <script type="text/javascript" src="../dist/scripts/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="../dist/scripts/jquery-ui.min.js"></script>
 <script type="text/javascript" src="../src/scripts/datetimepicker.js"></script>
 </head>
 <body>
 <div id="wrapper">
-	<div id="datetimepicker" date-type="Y-M-D"></div>
+	<!-- <div id="datetimepicker" date-type="Y-M-D"></div>
 	<script type="text/javascript">
-		$.datetimepicker("#datetimepicker");
+		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4'],"dateZoom":true});
+	</script> -->
+
+	<div id="datetimepicker" date-type="Y-M-D-H-Mi"></div>
+	<script type="text/javascript">
+		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4']});
 	</script>
 </div>
 </body>

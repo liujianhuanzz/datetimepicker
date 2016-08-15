@@ -1,26 +1,87 @@
 (function($){
-	$.datetimepicker = function(selector){
-		$(selector).on("click",function(){
+	$.datetimepicker = function(selector,config){
+		var config = config || {};
+		//定义一个初始化配置对象
+		var initConfig = {};
+		initConfig["not-allow-selected"] = config["not-allow-selected"] || [];
+		initConfig["dateZoom"] = config["dateZoom"] || false;
+
+		$(selector).on("click",function(e){
+			//阻止事件冒泡
+			var e = e || window.events;
+			e.stopPropagation();
+			e.preventDefault();
+
+			//提示用户当前的日期选择方式
+			if(initConfig["dateZoom"]){
+				alert("当前为日期区间选择，请正确操作");
+			}else{
+				alert("当前为单日期选择，请正确操作");
+			}
+			//获取日历展示方式
 			var date_type = this.getAttribute("date-type");
 
 			//获取当前日期
 			var now = new Date();
-
+			//不加时间的日历
 			if("Y-M-D" === date_type){
-				new Calender(now,date_type).createBlankPanel(this)
+				new Calender(now,date_type,initConfig).createBlankPanel(this)
 								 .createHeadInfo($(".blankPanel")[0])
-								 .createDateInfo($(".blankPanel")[0]);
+								 .createDateInfo($(".blankPanel")[0])
+								 .createBtnInfo($(".blankPanel")[0]);
+			}
+			//加时间的日历
+			else if("Y-M-D-H-Mi" === date_type){
+				new Calender(now,date_type,initConfig).createBlankPanel(this)
+								 .createHeadInfo($(".blankPanel")[0])
+								 .createDateInfo($(".blankPanel")[0])
+								 .createTimeInfo($(".blankPanel")[0])
+								 .createBtnInfo($(".blankPanel")[0]);
 			}
 		})
 	}
 })($)
 
-var Calender = function(datetime,date_type){
+var Calender = function(datetime,date_type,initConfig){
 	this.currYear = datetime.getFullYear();
 	this.currMonth = datetime.getMonth()+1;
 	this.currDate = datetime.getDate();
 	this.currDay = datetime.getDay();
 	this.date_type = date_type;
+	this.initConfig = initConfig;
+	//如果是选择日期区间，则新添一个属性来记录首尾日期
+	if(this.initConfig["dateZoom"]){
+		this.firstClickDate = "";
+		this.secondClickDate = "";
+	}
+	//如果是带时间的日期 且 为日期区间
+	if(("Y-M-D-H-Mi" === this.date_type)&&(this.initConfig["dateZoom"])){
+		this.firstClickDate = "";
+		this.secondClickDate = "";
+		this.firstSelectTime = {
+			"hour":"00",
+			"minute":"00",
+			"second":"00"
+		};
+		this.secondSelectTime = {
+			"hour":"00",
+			"minute":"00",
+			"second":"00"
+		};
+	}
+	//如果是带时间的日期 且 为单日选择
+	else if(("Y-M-D-H-Mi" === this.date_type)&&!(this.initConfig["dateZoom"])){
+		this.currTime = {
+			"hour":"00",
+			"minute":"00",
+			"second":"00"
+		};
+	}
+	//如果是不带时间 且 为日期区间
+	else if(!("Y-M-D-H-Mi" === this.date_type)&&(this.initConfig["dateZoom"])){
+		this.firstClickDate = "";
+		this.secondClickDate = "";
+	}
 };
 
 //创建一个空白的底层容器
@@ -180,7 +241,7 @@ Calender.prototype.createDateInfo = function(containerObj) {
 
 	var self = this;
 
-	$(".dayContainer,.dateContainer").remove();
+	$(".dayContainer,.dateContainer,.btnContainer").remove();
 	//创建星期几显示区域
 	var dayArr = ['日','一','二','三','四','五','六'];
 	//创建星期几容器
@@ -214,14 +275,31 @@ Calender.prototype.createDateInfo = function(containerObj) {
 	}
 	//添加本页中可显示的本月日期
 	for(var start=1; start<=sumCurrDate;start++){
-		var dateInfo = document.createElement("div");
-		if(this.currDate == start){
-			dateInfo.className = "currMonthDate dateInfo currDate";
-		}else{
-			dateInfo.className = "currMonthDate dateInfo";
+		//用当前的年月日拼接为2011/1/1这种字符串，然后判断其是否为禁止选择的日期
+		var targetStr = this.currYear+"/"+this.currMonth+"/"+start;
+		//如果为禁用字符串的话
+		if(this.initConfig["not-allow-selected"].indexOf(targetStr) > -1){
+			var dateInfo = document.createElement("div");
+			//如果是当前天的话
+			if(this.currDate == start){
+				dateInfo.className = "dateInfo currDate not-allow-selected";
+			}else{
+				dateInfo.className = "dateInfo not-allow-selected";
+			}
+			dateInfo.innerHTML = start;
+			dateContainer.appendChild(dateInfo);
 		}
-		dateInfo.innerHTML = start;
-		dateContainer.appendChild(dateInfo);
+		//如果不是禁用字符串的话
+		else{
+			var dateInfo = document.createElement("div");
+			if(this.currDate == start){
+				dateInfo.className = "currMonthDate dateInfo currDate";
+			}else{
+				dateInfo.className = "currMonthDate dateInfo";
+			}
+			dateInfo.innerHTML = start;
+			dateContainer.appendChild(dateInfo);
+		}
 	}
 	//添加本页中可显示的下个月日期
 	//首先获取本月最后一天为星期几
@@ -240,73 +318,241 @@ Calender.prototype.createDateInfo = function(containerObj) {
 		var e = e || window.events;
 		e.stopPropagation();
 		e.preventDefault();
+		if(this.className.indexOf("not-allow-selected") === -1){
+			//日期区间选择
+			if(self.initConfig["dateZoom"]){
+				//self.firstClickDate为空的话说明是第一次点击
+				if(!self.firstClickDate){
+					self.firstClickDate = this;
+					this.className += " dateZoomStyle";
+				}else{
+					self.secondClickDate = this;
 
-		//点击到上个月的日期
-		if(this.className.indexOf("prevMonthDate") > -1){
-			//获取当前显示的月份
-			var currShowMonth = $(".monthShow").html();
-			//判断改变月份
-			var previousMonth = parseInt(currShowMonth) - 1;
-			//如果preiviousMonth为0的话，上一年的最后一个月
-			if(0 === previousMonth){
-				//获取当前显示的年份
-				var currShowYear = $(".yearShow").html();
-				//改为上一年
-				var previousYear = parseInt(currShowYear) - 1;
-				$(".yearShow").html(previousYear + "年");
+					var currActiveObj = self.firstClickDate;
+					//循环执行改变颜色
+					while(true){
+						//为当前活跃对象添加样式类
+						//指针指向下一个对象
+						currActiveObj = currActiveObj.nextSibling;
+						currActiveObj.className += " dateZoomStyle";
+						//如果为禁止选择的日期
+						if(currActiveObj.className.indexOf("not-allow-selected") > -1){
+							currActiveObj = currActiveObj.nextSibling;
+						}
+						//如果为第二次点击的日期
+						else if(currActiveObj.innerHTML == self.secondClickDate.innerHTML){
+							currActiveObj.className += " dateZoomStyle";
+							break
+						}
+					}
 
-				previousMonth = 12;
-				//更新calendar对象信息
-				self.currMonth = previousMonth;
-				self.currYear = previousYear;
+					//document.getElementById("datetimepicker").innerHTML = 
+										//self.currYear+"年"+self.currMonth+"月"+self.firstClickDate.innerHTML+"日 到 "+
+										//self.currYear+"年"+self.currMonth+"月"+self.secondClickDate.innerHTML+"日";
+					//$(".blankPanel").remove();
+				}
 			}
-			$(".monthShow").html(previousMonth + "月");
-			//刷新日期面板
-			self.currMonth = previousMonth;
-			//
-			self.createDateInfo($(".blankPanel")[0]);
-		}
-		//点击到下个月的日期
-		else if(this.className.indexOf("nextMonthDate") > -1){
-			//获取当前显示的月份
-			var currShowMonth = $(".monthShow").html();
-			//判断改变月份
-			var nextMonth = parseInt(currShowMonth) + 1;
+			//单日期选择
+			else{
+				//点击到上个月的日期
+				if(this.className.indexOf("prevMonthDate") > -1){
+					//获取当前显示的月份
+					var currShowMonth = $(".monthShow").html();
+					//判断改变月份
+					var previousMonth = parseInt(currShowMonth) - 1;
+					//如果preiviousMonth为0的话，上一年的最后一个月
+					if(0 === previousMonth){
+						//获取当前显示的年份
+						var currShowYear = $(".yearShow").html();
+						//改为上一年
+						var previousYear = parseInt(currShowYear) - 1;
+						$(".yearShow").html(previousYear + "年");
 
-			//如果preiviousMonth为13的话，下一年的第一个月
-			if(13 === nextMonth){
-				//获取当前显示的年份
-				var currShowYear = $(".yearShow").html();
-				//改为下一年
-				var nextYear = parseInt(currShowYear) + 1;
-				$(".yearShow").html(nextYear + "年");
+						previousMonth = 12;
+						//更新calendar对象信息
+						self.currMonth = previousMonth;
+						self.currYear = previousYear;
+					}
+					$(".monthShow").html(previousMonth + "月");
+					//刷新日期面板
+					self.currMonth = previousMonth;
+					//
+					self.createDateInfo($(".blankPanel")[0]);
+				}
+				//点击到下个月的日期
+				else if(this.className.indexOf("nextMonthDate") > -1){
+					//获取当前显示的月份
+					var currShowMonth = $(".monthShow").html();
+					//判断改变月份
+					var nextMonth = parseInt(currShowMonth) + 1;
 
-				nextMonth = 1;
-				//更新calendar对象信息
-				self.currMonth = nextMonth;
-				self.currYear = nextYear;
-			}
-			
-			$(".monthShow").html(nextMonth + "月");
-			//刷新日期面板
-			//
-			self.currMonth = nextMonth;
-			self.createDateInfo($(".blankPanel")[0]);
-		}
-		//点击到本月的日期
-		else{
-			if("Y-M-D" === self.date_type){
-				var currDate = this.innerHTML;
-				var currMonth = $(".monthShow").html();
-				var currYear = $(".yearShow").html();
+					//如果preiviousMonth为13的话，下一年的第一个月
+					if(13 === nextMonth){
+						//获取当前显示的年份
+						var currShowYear = $(".yearShow").html();
+						//改为下一年
+						var nextYear = parseInt(currShowYear) + 1;
+						$(".yearShow").html(nextYear + "年");
 
-				document.getElementById("datetimepicker").innerHTML = currYear+currMonth+currDate+"日";
+						nextMonth = 1;
+						//更新calendar对象信息
+						self.currMonth = nextMonth;
+						self.currYear = nextYear;
+					}
+					
+					$(".monthShow").html(nextMonth + "月");
+					//刷新日期面板
+					//
+					self.currMonth = nextMonth;
+					self.createDateInfo($(".blankPanel")[0]);
+				}
+				//点击到本月的日期
+				else{
+					if("Y-M-D" === self.date_type){
+						self.currDate = this.innerHTML;
+						self.currMonth = $(".monthShow").html().match(/^\d+/g)[0];
+						self.currYear = $(".yearShow").html().match(/^\d+/g)[0];
 
-				$(".blankPanel").remove();
+						this.className += " currSingleDate";
+
+						//document.getElementById("datetimepicker").innerHTML = currYear+currMonth+currDate+"日";
+
+						//$(".blankPanel").remove();
+					}
+					else if("Y-M-D-H-Mi" === self.date_type){
+						self.currDate = this.innerHTML;
+						self.currMonth = $(".monthShow").html().match(/^\d+/g)[0];
+						self.currYear = $(".yearShow").html().match(/^\d+/g)[0];
+
+						this.className += " currSingleDate";
+					}
+				}
 			}
 		}
 	})
 
+	return self;
+};
+
+Calender.prototype.createBtnInfo = function(containerObj) {
+	var self = this;
+	//添加确认和取消按钮
+	var btnContainer = document.createElement("div");
+	btnContainer.className = "btnContainer";
+	containerObj.appendChild(btnContainer);
+
+	var submitBtn = document.createElement("div");
+	submitBtn.className = "btn submitBtn";
+	submitBtn.innerHTML = "确认";
+	btnContainer.appendChild(submitBtn);
+
+	var cancelBtn = document.createElement("div");
+	cancelBtn.className = "btn cancelBtn";
+	cancelBtn.innerHTML = "取消";
+	btnContainer.appendChild(cancelBtn);
+
+	//为确认和取消按钮添加事件
+	$(".btn").on("click",function(e){
+		var e = e || window.events;
+		e.stopPropagation();
+		e.preventDefault();
+
+		var btnFlag = this.className.indexOf("submitBtn");
+		//如果是确认按钮
+		if(btnFlag > -1){
+			//如果是单日期选择  不带时间
+			if(!self.initConfig["dateZoom"] && !("Y-M-D-H-Mi" === self.date_type)){
+				document.getElementById("datetimepicker").innerHTML = self.currYear+"年"+self.currMonth+"月"+self.currDate+"日";
+			}
+			//单日期  带时间
+			else if(!self.initConfig["dateZoom"] && ("Y-M-D-H-Mi" === self.date_type)){
+				document.getElementById("datetimepicker").innerHTML = self.currYear+"年"+self.currMonth+"月"+self.currDate+"日"+
+										self.currTime["hour"]+"时"+self.currTime["minute"]+"分"+self.currTime["second"]+"秒";
+			}
+			//如果是日期区间选择
+			else{
+				//首先判断用户是否点击了第二次
+				if(!self.secondClickDate){
+					alert("当前为日期区间选择，请选择结束日期");
+				}else{
+					document.getElementById("datetimepicker").innerHTML = 
+										self.currYear+"年"+self.currMonth+"月"+self.firstClickDate.innerHTML+"日 到 "+
+										self.currYear+"年"+self.currMonth+"月"+self.secondClickDate.innerHTML+"日";
+				}
+			}
+
+		}
+		//如果是取消按钮
+		else{
+			$(".blankPanel").remove();
+		}
+	})
+
+	return self;
+};
+
+Calender.prototype.createTimeInfo = function(containerObj) {
+	var self = this;
+	//创建时间信息容器
+	var timeContainer = document.createElement("div");
+	timeContainer.className = "timeContainer";
+	containerObj.appendChild(timeContainer);
+	//创建所选择的时间show容器
+	var timeShow = document.createElement("div");
+	timeShow.className = "timeShow";
+	timeShow.innerHTML = "<span class='hourShow'>"+self.currTime["hour"]+"</span>:"+
+						 "<span class='minuteShow'>"+self.currTime["minute"]+"</span>:"+
+						 "<span class='secondShow'>"+self.currTime["second"]+"</span>";
+	timeContainer.appendChild(timeShow);
+
+	for(var i=0; i<3; i++){
+		//创建滑动选择时间的固定横轴
+		var timeFixedDiv = document.createElement("div");
+		timeFixedDiv.className = "timeFixedDiv";
+		timeContainer.appendChild(timeFixedDiv);
+		//创建滑动选择时间的移动块
+		var timeMovedDiv = document.createElement("div");
+		timeMovedDiv.className = "timeMovedDiv";
+		timeFixedDiv.appendChild(timeMovedDiv);
+	}
+
+	//为滑块绑定滑动事件
+
+	$(".timeMovedDiv").draggable({
+		'axis': "x",
+		'containment':".timeFixedDiv",
+		drag:function(events,ui){
+			var currMovedEle = ui.helper[0];//当前拖动元素
+			var allMovedELe = $(".timeMovedDiv");//所有可拖动的元素
+			var offsetLeft = currMovedEle.offsetLeft;//偏移父元素左端的距离
+			var index = Array.prototype.slice.call(allMovedELe).indexOf(currMovedEle);
+			//根据其父元素是否具有上下兄弟节点来判断其改变的是时分秒
+			//计算小时值
+			if(index === 0){
+				var hour = Util.calculateTime(offsetLeft,'hour');
+				$(".hourShow").html(hour);
+				//更改Calender对象中的时间属性
+				self.currTime["hour"] = hour;
+			}
+			//计算分钟值
+			else if(index === 1){
+				var minute = Util.calculateTime(offsetLeft,'minute');
+				$(".minuteShow").html(minute);
+				//更改Calender对象中的时间属性
+				self.currTime["minute"] = minute;
+			}
+			//计算秒钟值
+			else if(index === 2){
+				var second = Util.calculateTime(offsetLeft,'second');
+				$(".secondShow").html(second);
+				//更改Calender对象中的时间属性
+				self.currTime["second"] = second;
+			}
+			//更改Calender对象中的时间属性
+		}
+	})
+
+	return self;
 };
 
 var Util = {
@@ -395,6 +641,31 @@ var Util = {
 					return 29;
 					break;
 			}
+		}
+	},
+	calculateTime:function(offsetLeft,type){
+		var fixedLength = 242;
+
+		if("hour" === type){
+			var result = Math.floor((23 * offsetLeft)/fixedLength) + "";
+			if(result.length === 1){
+				result = "0"+result;
+			}
+			return result;
+		}
+		else if("minute" === type){
+			var result = Math.floor((59 * offsetLeft)/fixedLength) + "";
+			if(result.length === 1){
+				result = "0"+result;
+			}
+			return result;
+		}
+		else if("second" === type){
+			var result = Math.floor((59 * offsetLeft)/fixedLength) + "";
+			if(result.length === 1){
+				result = "0"+result;
+			}
+			return result;
 		}
 	}
 }
