@@ -15,9 +15,21 @@
 	<script type="text/javascript">
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4'],"dateZoom":true});
 	</script> -->
-	<div id="datetimepicker" date-type="Y-M-D-H-Mi"></div>
+	<!--<div id="datetimepicker" date-type="Y-M-D-H-Mi"></div>
 	<script type="text/javascript">
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4']});
+	</script>-->
+	<div id="datetimepicker" date-type="Memo"></div>
+	<script type="text/javascript">
+		function testFunction(){
+			var result = {};
+			arguments[0].forEach(function(item){
+				result[item.name] = item.value;
+			})
+			alert(JSON.stringify(result));
+		}
+		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4'],
+																				"memo-callback":testFunction});
 	</script>
 </div>
 </body>

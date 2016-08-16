@@ -59,7 +59,7 @@
 .dayContainer{
 	width: calc(100% - 8px);
 	height: 30px;
-	padding: 0px 4px 0px 4px 
+	padding: 0px 4px 0px 4px
 }
 .dayInfo{
 	float: left;
@@ -135,11 +135,14 @@
 	color: #fff;
 	background-color: #337ab7;
 }
+.btn:hover .memoDiv{
+	color: #000;
+}
 /*时间选择 的样式*/
 .timeContainer{
 	width: calc(100% - 8px);
 	/*height: 40px;*/
-	padding: 0px 4px 0px 4px; 
+	padding: 0px 4px 0px 4px;
 }
 .timeShow{
 	width: calc(100% - 4px);
@@ -178,4 +181,41 @@
 	cursor: pointer;
 	color: #fff;
 	background-color: #337ab7;
+}
+/*备忘类型相关样式*/
+.submitBtn{
+	position: relative;
+}
+.memoDiv{
+	position: absolute;
+	left: 0px;
+	top: 60px;
+	width: 240px;
+	height: 140px;
+	border: 2px solid #ccc;
+	background-color: #fff;
+}
+.memoDiv::before{
+	content: "";
+	border: 20px solid #ccc;
+	border-left-color:transparent;
+	border-right-color: transparent;
+	border-top-color:transparent;
+	width:0px;
+	height:0px;
+	position:absolute;
+	left:22px;
+	top:-40px;
+}
+.memoDiv::after{
+	content: "";
+	border: 19px solid #fff;
+	border-left-color:transparent;
+	border-right-color: transparent;
+	border-top-color:transparent;
+	width:0px;
+	height:0px;
+	position:absolute;
+	left:23px;
+	top:-36px;
 }

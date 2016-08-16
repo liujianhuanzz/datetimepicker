@@ -5,21 +5,24 @@
 		var initConfig = {};
 		initConfig["not-allow-selected"] = config["not-allow-selected"] || [];
 		initConfig["dateZoom"] = config["dateZoom"] || false;
-
+		initConfig["memo-callback"] = config["memo-callback"];
+		/*以上关于参数初始化默认值在es6中直接可以在函数声明中传递默认参数，知识点可以归为  参数的解构赋值*/
 		$(selector).on("click",function(e){
 			//阻止事件冒泡
 			var e = e || window.events;
 			e.stopPropagation();
 			e.preventDefault();
+			//获取日历展示方式
+			var date_type = this.getAttribute("date-type");
 
 			//提示用户当前的日期选择方式
 			if(initConfig["dateZoom"]){
 				alert("当前为日期区间选择，请正确操作");
+			}else if (date_type === "Memo") {
+				alert("当前为备忘类型，请正确操作")
 			}else{
 				alert("当前为单日期选择，请正确操作");
 			}
-			//获取日历展示方式
-			var date_type = this.getAttribute("date-type");
 
 			//获取当前日期
 			var now = new Date();
@@ -32,6 +35,14 @@
 			}
 			//加时间的日历
 			else if("Y-M-D-H-Mi" === date_type){
+				new Calender(now,date_type,initConfig).createBlankPanel(this)
+								 .createHeadInfo($(".blankPanel")[0])
+								 .createDateInfo($(".blankPanel")[0])
+								 .createTimeInfo($(".blankPanel")[0])
+								 .createBtnInfo($(".blankPanel")[0]);
+			}
+			//备忘类型的日历
+			else if ("Memo" === date_type) {
 				new Calender(now,date_type,initConfig).createBlankPanel(this)
 								 .createHeadInfo($(".blankPanel")[0])
 								 .createDateInfo($(".blankPanel")[0])
@@ -77,6 +88,15 @@ var Calender = function(datetime,date_type,initConfig){
 			"second":"00"
 		};
 	}
+	//如果是备忘类型
+	else if(("Memo" === this.date_type)&&!(this.initConfig["dateZoom"])){
+		this.currTime = {
+			"hour":"00",
+			"minute":"00",
+			"second":"00"
+		};
+		this.callback = initConfig["memo-callback"];
+	}
 	//如果是不带时间 且 为日期区间
 	else if(!("Y-M-D-H-Mi" === this.date_type)&&(this.initConfig["dateZoom"])){
 		this.firstClickDate = "";
@@ -91,7 +111,7 @@ Calender.prototype.createBlankPanel = function(obj) {
 
 	var panelElement = document.createElement("div");
 	panelElement.className = "blankPanel";
-	panelElement.style.top = $(obj).css("height"); 
+	panelElement.style.top = $(obj).css("height");
 	obj.appendChild(panelElement);
 
 	return this;
@@ -216,7 +236,7 @@ Calender.prototype.createHeadInfo = function(containerObj) {
 					self.currMonth = nextMonth;
 					self.currYear = nextYear;
 				}
-				
+
 				$(".monthShow").html(nextMonth + "月");
 				//刷新日期面板
 				//
@@ -398,7 +418,7 @@ Calender.prototype.createDateInfo = function(containerObj) {
 						}
 					}
 
-					//document.getElementById("datetimepicker").innerHTML = 
+					//document.getElementById("datetimepicker").innerHTML =
 										//self.currYear+"年"+self.currMonth+"月"+self.firstClickDate.innerHTML+"日 到 "+
 										//self.currYear+"年"+self.currMonth+"月"+self.secondClickDate.innerHTML+"日";
 					//$(".blankPanel").remove();
@@ -451,7 +471,7 @@ Calender.prototype.createDateInfo = function(containerObj) {
 						self.currMonth = nextMonth;
 						self.currYear = nextYear;
 					}
-					
+
 					$(".monthShow").html(nextMonth + "月");
 					//刷新日期面板
 					//
@@ -465,17 +485,21 @@ Calender.prototype.createDateInfo = function(containerObj) {
 						self.currMonth = $(".monthShow").html().match(/^\d+/g)[0];
 						self.currYear = $(".yearShow").html().match(/^\d+/g)[0];
 
+						//先移除已经有此类的，然后给点击元素添加类
+						$(".currSingleDate").removeClass("currSingleDate");
 						this.className += " currSingleDate";
 
 						//document.getElementById("datetimepicker").innerHTML = currYear+currMonth+currDate+"日";
 
 						//$(".blankPanel").remove();
 					}
-					else if("Y-M-D-H-Mi" === self.date_type){
+					else if("Y-M-D-H-Mi" === self.date_type || "Memo" === self.date_type){
 						self.currDate = this.innerHTML;
 						self.currMonth = $(".monthShow").html().match(/^\d+/g)[0];
 						self.currYear = $(".yearShow").html().match(/^\d+/g)[0];
 
+						//先移除已经有此类的，然后给点击元素添加类
+						$(".currSingleDate").removeClass("currSingleDate");
 						this.className += " currSingleDate";
 					}
 				}
@@ -510,8 +534,8 @@ Calender.prototype.createBtnInfo = function(containerObj) {
 		e.preventDefault();
 
 		var btnFlag = this.className.indexOf("submitBtn");
-		//如果是确认按钮
-		if(btnFlag > -1){
+		//如果是确认按钮 同时不是备忘类型日历
+		if(btnFlag > -1 && self.date_type !== "Memo"){
 			//如果是单日期选择  不带时间
 			if(!self.initConfig["dateZoom"] && !("Y-M-D-H-Mi" === self.date_type)){
 				document.getElementById("datetimepicker").innerHTML = self.currYear+"年"+self.currMonth+"月"+self.currDate+"日";
@@ -527,12 +551,45 @@ Calender.prototype.createBtnInfo = function(containerObj) {
 				if(!self.secondClickDate){
 					alert("当前为日期区间选择，请选择结束日期");
 				}else{
-					document.getElementById("datetimepicker").innerHTML = 
+					document.getElementById("datetimepicker").innerHTML =
 										self.currYear+"年"+self.currMonth+"月"+self.firstClickDate.innerHTML+"日 到 "+
 										self.currYear+"年"+self.currMonth+"月"+self.secondClickDate.innerHTML+"日";
 				}
 			}
 
+		}
+		//确认按钮  同时 是备忘类型
+		else if(btnFlag > -1 && self.date_type === "Memo"){
+			//备忘窗口不存在则添加
+			if($(".memoDiv")[0] === undefined){
+				var memoDiv = document.createElement("div");
+				memoDiv.className = "memoDiv";
+				this.appendChild(memoDiv);
+				//es6模板字符串特性
+				$(memoDiv).append(`
+					<form method="post">
+						<label for="memoTime">时间：<input type="text" name="memoTime" value="${self.currYear+"年"
+																																									+self.currMonth+"月"
+																																									+self.currDate+"日"
+																																									+self.currTime["hour"]+"时"
+																																									+self.currTime["minute"]+"分"
+																																									+self.currTime["second"]+"秒"}"></label>
+						<label for="memoAddress">地点：<input type="text" name="memoAddress"></label>
+						<label for="memoTheme">主题：<input type="text" name="memoTheme"></label>
+						<label for="memoSubmit"><input type="submit" name="memoSubmit" value="提交"></label>
+					</form>`
+				)
+				//表单提交事件
+				$("input[type='submit']").on("click",function(e){
+					var e = e || window.events;
+					e.stopPropagation();
+					e.preventDefault();
+
+					var memoInfo = $(".memoDiv form").serializeArray();
+					self.callback(memoInfo);
+					$(".blankPanel").remove();
+				})
+			}
 		}
 		//如果是取消按钮
 		else{
@@ -680,7 +737,7 @@ Calender.prototype.createMonthPanel = function(containerObj) {
 };
 Calender.prototype.removeInit= function() {
 	//先移除日期面板
-	$(".dayContainer,.dateContainer,.timeContainer,.btnContainer,.yearSelectContainer,.monthSelectContainer").remove();
+	$(".dayContainer,.dateContainer,.timeContainer,.btnContainer,.yearSelectContainer,.monthSelectContainer").remove()
 };
 var Util = {
 	//计算每个月有几天
@@ -796,29 +853,3 @@ var Util = {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
