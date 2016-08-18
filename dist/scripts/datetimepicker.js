@@ -111,8 +111,10 @@ Calender.prototype = {
 	//创建顶部日期显示区域
 	createHeadInfo: function createHeadInfo(containerObj) {
 		var self = this;
+		//获取当前年的农历年份
+		var lunarYear = LunarDate.GetLunarDay(self.currYear, self.currMonth, self.currDate).split(" ")[0];
 		//创建头部底层容器
-		$(containerObj).append("\n\t\t\t<div class=\"headYearMonth\">\n\t\t\t\t<div class=\"switchBtn\">&lt;&lt;</div>\n\t\t\t\t<div class=\"switchBtn\">&lt;</div>\n\t\t\t\t<div class=\"yearShow show\">" + self.currYear + "年</div>\n\t\t\t\t<div class=\"monthShow show\">" + self.currMonth + "月</div>\n\t\t\t\t<div class=\"switchBtn\">&gt;</div>\n\t\t\t\t<div class=\"switchBtn\">&gt;&gt;</div>\n\t\t\t</div>\n\t\t\t");
+		$(containerObj).append("\n\t\t\t<div class=\"headYearMonth\">\n\t\t\t\t<div class=\"switchBtn\">&lt;&lt;</div>\n\t\t\t\t<div class=\"switchBtn\">&lt;</div>\n\t\t\t\t<div class=\"yearShow show\">" + self.currYear + "年 " + lunarYear + "</div>\n\t\t\t\t<div class=\"monthShow show\">" + self.currMonth + "月</div>\n\t\t\t\t<div class=\"switchBtn\">&gt;</div>\n\t\t\t\t<div class=\"switchBtn\">&gt;&gt;</div>\n\t\t\t</div>\n\t\t\t");
 		//为年月左右翻页绑定事件
 		$(".switchBtn").on("click", function (e) {
 			e.stopPropagation();
@@ -132,12 +134,13 @@ Calender.prototype = {
 					self.createYearPanel($(".blankPanel")[0], initYear);
 				} else {
 					var previousYear = parseInt(currShowYear) - 1;
-					$(".yearShow").html(previousYear + "年");
-
-					//刷新日期面板
 					//更新calendar对象信息
 					self.currYear = previousYear;
-					//
+					//获取当前年的农历年份
+					var _lunarYear = LunarDate.GetLunarDay(self.currYear, self.currMonth, self.currDate).split(" ")[0];
+					$(".yearShow").html(previousYear + "年 " + _lunarYear);
+
+					//刷新日期面板
 					reviseDateInfo();
 				}
 			}
@@ -216,11 +219,12 @@ Calender.prototype = {
 								self.createYearPanel($(".blankPanel")[0], _initYear);
 							} else {
 								var _nextYear = parseInt(_currShowYear3) + 1;
-								$(".yearShow").html(_nextYear + "年");
+								self.currYear = _nextYear;
+								//获取当前年的农历年份
+								var _lunarYear2 = LunarDate.GetLunarDay(self.currYear, self.currMonth, self.currDate).split(" ")[0];
+								$(".yearShow").html(_nextYear + "年 " + _lunarYear2);
 
 								//刷新日期面板
-								self.currYear = _nextYear;
-								//
 								reviseDateInfo();
 							}
 						}
@@ -255,7 +259,7 @@ Calender.prototype = {
 		function reviseDateInfo() {
 			var blankPanel = $(".blankPanel")[0];
 			if (self.date_type === 'Y-M-D') {
-				self.createDateInfo(blankPanel);
+				self.createDateInfo(blankPanel).createBtnInfo(blankPanel);
 			} else {
 				self.createDateInfo(blankPanel).createTimeInfo(blankPanel).createBtnInfo(blankPanel);
 			}
@@ -302,24 +306,42 @@ Calender.prototype = {
 		//添加本页中可显示的本月日期
 		docFragment = document.createDocumentFragment();
 		for (var _start = 1; _start <= sumCurrDate; _start++) {
+			//计算当前日期的阴历对应日期
+			var lunarRes = LunarDate.GetLunarDay(this.currYear, this.currMonth, _start);
+			var lunarMonth = lunarRes.split(" ")[1].split("月")[0];
+			var lunarDate = lunarRes.split(" ")[1].split("月")[1];
+			//定义要显示的农历信息，每个月初一显示月份，遇到节日则显示节日
+			var specialDate = Util.calSpecialDate("" + this.currMonth + _start, lunarMonth + "月" + lunarDate);
+			var showRes = void 0;
+			if (specialDate["isSpec"]) {
+				showRes = specialDate["specDate"];
+			} else if (!specialDate["isSpec"] && lunarDate === "初一") {
+				showRes = lunarMonth + "月";
+			} else {
+				showRes = lunarDate;
+			}
 			//用当前的年月日拼接为2011/1/1这种字符串，然后判断其是否为禁止选择的日期
 			var targetStr = this.currYear + "/" + this.currMonth + "/" + _start;
 			//如果为禁用字符串的话
 			if (this.initConfig["not-allow-selected"].indexOf(targetStr) > -1) {
 				var dateInfo = document.createElement("div");
 				//如果是当前天的话
-				if (this.currDate == _start) {
-					$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currDate not-allow-selected\">" + _start + "</div>\n\t\t\t\t\t\t");
+				if (specialDate["isSpec"]) {
+					$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currMonthDate specialDate not-allow-selected\">" + _start + "<span class=\"lunarDate\">" + showRes + "</span></div>\n\t\t\t\t\t\t");
+				} else if (!specialDate["isSpec"] && this.currDate == _start) {
+					$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currMonthDate currDate not-allow-selected\">" + _start + "<span class=\"lunarDate\">" + showRes + "</span></div>\n\t\t\t\t\t\t");
 				} else {
-					$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo not-allow-selected\">" + _start + "</div>\n\t\t\t\t\t\t");
+					$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currMonthDate not-allow-selected\">" + _start + "<span class=\"lunarDate\">" + showRes + "</span></div>\n\t\t\t\t\t\t");
 				}
 			}
 			//如果不是禁用字符串的话
 			else {
-					if (this.currDate == _start) {
-						$(docFragment).append("\n\t\t\t\t\t\t<div class=\"currMonthDate dateInfo currDate\">" + _start + "</div>\n\t\t\t\t\t\t");
+					if (specialDate["isSpec"]) {
+						$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currMonthDate specialDate\">" + _start + "<span class=\"lunarDate\">" + showRes + "</span></div>\n\t\t\t\t\t\t");
+					} else if (!specialDate["isSpec"] && this.currDate == _start) {
+						$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currMonthDate currDate\">" + _start + "<span class=\"lunarDate\">" + showRes + "</span></div>\n\t\t\t\t\t\t");
 					} else {
-						$(docFragment).append("\n\t\t\t\t\t\t<div class=\"currMonthDate dateInfo\">" + _start + "</div>\n\t\t\t\t\t\t");
+						$(docFragment).append("\n\t\t\t\t\t\t<div class=\"dateInfo currMonthDate\">" + _start + "<span class=\"lunarDate\">" + showRes + "</span></div>\n\t\t\t\t\t\t");
 					}
 				}
 		}
@@ -354,9 +376,9 @@ Calender.prototype = {
 						//循环执行改变颜色
 						while (true) {
 							//为当前活跃对象添加样式类
-							//指针指向下一个对象
-							currActiveObj = currActiveObj.nextSibling;
 							currActiveObj.className += " dateZoomStyle";
+							//指针指向下一个对象
+							currActiveObj = currActiveObj.nextElementSibling;
 							//如果为禁止选择的日期
 							if (currActiveObj.className.indexOf("not-allow-selected") > -1) {
 								currActiveObj = currActiveObj.nextSibling;
@@ -394,7 +416,11 @@ Calender.prototype = {
 							//刷新日期面板
 							self.currMonth = previousMonth;
 							//
-							self.createDateInfo($(".blankPanel")[0]);
+							if (!self.initConfig["dateZoom"]) {
+								self.createDateInfo($(".blankPanel")[0]).createTimeInfo($(".blankPanel")[0]).createBtnInfo($(".blankPanel")[0]);
+							} else {
+								self.createDateInfo($(".blankPanel")[0]).createBtnInfo($(".blankPanel")[0]);
+							}
 						}
 						//点击到下个月的日期
 						else if (this.className.indexOf("nextMonthDate") > -1) {
@@ -421,12 +447,16 @@ Calender.prototype = {
 								//刷新日期面板
 								//
 								self.currMonth = nextMonth;
-								self.createDateInfo($(".blankPanel")[0]);
+								if (!self.initConfig["dateZoom"]) {
+									self.createDateInfo($(".blankPanel")[0]).createTimeInfo($(".blankPanel")[0]).createBtnInfo($(".blankPanel")[0]);
+								} else {
+									self.createDateInfo($(".blankPanel")[0]).createBtnInfo($(".blankPanel")[0]);
+								}
 							}
 							//点击到本月的日期
 							else {
 									if ("Y-M-D" === self.date_type) {
-										self.currDate = this.innerHTML;
+										self.currDate = this.innerHTML.match(/^\d+/g)[0];
 										self.currMonth = $(".monthShow").html().match(/^\d+/g)[0];
 										self.currYear = $(".yearShow").html().match(/^\d+/g)[0];
 
@@ -434,7 +464,7 @@ Calender.prototype = {
 										$(".currSingleDate").removeClass("currSingleDate");
 										this.className += " currSingleDate";
 									} else if ("Y-M-D-H-Mi" === self.date_type || "Memo" === self.date_type) {
-										self.currDate = this.innerHTML;
+										self.currDate = this.innerHTML.match(/^\d+/g)[0];
 										self.currMonth = $(".monthShow").html().match(/^\d+/g)[0];
 										self.currYear = $(".yearShow").html().match(/^\d+/g)[0];
 
@@ -479,7 +509,7 @@ Calender.prototype = {
 							if (!self.secondClickDate) {
 								alert("当前为日期区间选择，请选择结束日期");
 							} else {
-								document.getElementById("datetimepicker").firstElementChild.value = self.currYear + "年" + self.currMonth + "月" + self.firstClickDate.innerHTML + "日 到 " + self.currYear + "年" + self.currMonth + "月" + self.secondClickDate.innerHTML + "日";
+								document.getElementById("datetimepicker").firstElementChild.value = self.currYear + "年" + self.currMonth + "月" + self.firstClickDate.innerHTML.match(/^\d+/g)[0] + "日 到 " + self.currYear + "年" + self.currMonth + "月" + self.secondClickDate.innerHTML.match(/^\d+/g)[0] + "日";
 								$(".blankPanel").remove();
 							}
 						}
@@ -512,6 +542,12 @@ Calender.prototype = {
 	//创建时间区域
 	createTimeInfo: function createTimeInfo(containerObj) {
 		var self = this;
+		//每次调用之前，首先初始化时间
+		self.currTime = {
+			"hour": "00",
+			"minute": "00",
+			"second": "00"
+		};
 		//如果是区间日期选择，则不添加时间选择功能
 		if (!self.initConfig["dateZoom"]) {
 			//创建时间信息容器
@@ -618,8 +654,10 @@ Calender.prototype = {
 			self.currYear = parseInt(this.innerHTML);
 			//生成月份
 			self.createMonthPanel($(".blankPanel")[0]);
+			//获取当前年的农历年份
+			var lunarYear = LunarDate.GetLunarDay(self.currYear, self.currMonth, self.currDate).split(" ")[0];
 			//更改年份显示
-			$(".yearShow").html(self.currYear + "年");
+			$(".yearShow").html(self.currYear + "年 " + lunarYear);
 		});
 		return self;
 	},
@@ -754,7 +792,7 @@ var Util = {
 		}
 	},
 	calculateTime: function calculateTime(offsetLeft, type) {
-		var fixedLength = 242;
+		var fixedLength = 382;
 
 		if ("hour" === type) {
 			var result = Math.floor(23 * offsetLeft / fixedLength) + "";
@@ -775,6 +813,103 @@ var Util = {
 			}
 			return _result2;
 		}
+	},
+	calSpecialDate: function calSpecialDate(YaLdate, YiLdate) {
+		var resObj = { "isSpec": false, "specDate": {} };
+
+		var YaLSpecDate = { "11": "元旦", "38": "妇女节", "51": "劳动节", "61": "儿童节", "71": "建党节", "81": "建军节", "101": "国庆节", "1225": "圣诞节" };
+		var YiLSpecDate = { "正月初一": "春节", "正月十五": "元宵节", "五月初五": "端午节", "七月十五": "中元节", "八月十五": "中秋节", "九月初九": "重阳节" };
+		for (var key_YaL in YaLSpecDate) {
+			if (YaLdate === key_YaL) {
+				resObj["isSpec"] = true;
+				resObj["specDate"] = YaLSpecDate[key_YaL];
+				break;
+			}
+		}
+		for (var key_YiL in YiLSpecDate) {
+			if (YiLdate === key_YiL) {
+				resObj["isSpec"] = true;
+				resObj["specDate"] = YiLSpecDate[key_YiL];
+				break;
+			}
+		}
+		return resObj;
 	}
+};
+'use strict';
+
+var LunarDate = {
+    madd: new Array(0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334),
+    HsString: '甲乙丙丁戊己庚辛壬癸',
+    EbString: '子丑寅卯辰巳午未申酉戌亥',
+    NumString: "一二三四五六七八九十",
+    MonString: "正二三四五六七八九十冬腊",
+    CalendarData: new Array(0xA4B, 0x5164B, 0x6A5, 0x6D4, 0x415B5, 0x2B6, 0x957, 0x2092F, 0x497, 0x60C96, 0xD4A, 0xEA5, 0x50DA9, 0x5AD, 0x2B6, 0x3126E, 0x92E, 0x7192D, 0xC95, 0xD4A, 0x61B4A, 0xB55, 0x56A, 0x4155B, 0x25D, 0x92D, 0x2192B, 0xA95, 0x71695, 0x6CA, 0xB55, 0x50AB5, 0x4DA, 0xA5B, 0x30A57, 0x52B, 0x8152A, 0xE95, 0x6AA, 0x615AA, 0xAB5, 0x4B6, 0x414AE, 0xA57, 0x526, 0x31D26, 0xD95, 0x70B55, 0x56A, 0x96D, 0x5095D, 0x4AD, 0xA4D, 0x41A4D, 0xD25, 0x81AA5, 0xB54, 0xB6A, 0x612DA, 0x95B, 0x49B, 0x41497, 0xA4B, 0xA164B, 0x6A5, 0x6D4, 0x615B4, 0xAB6, 0x957, 0x5092F, 0x497, 0x64B, 0x30D4A, 0xEA5, 0x80D65, 0x5AC, 0xAB6, 0x5126D, 0x92E, 0xC96, 0x41A95, 0xD4A, 0xDA5, 0x20B55, 0x56A, 0x7155B, 0x25D, 0x92D, 0x5192B, 0xA95, 0xB4A, 0x416AA, 0xAD5, 0x90AB5, 0x4BA, 0xA5B, 0x60A57, 0x52B, 0xA93, 0x40E95),
+    Year: null,
+    Month: null,
+    Day: null,
+    TheDate: null,
+    GetBit: function GetBit(m, n) {
+        return m >> n & 1;
+    },
+    e2c: function e2c() {
+        this.TheDate = arguments.length != 3 ? new Date() : new Date(arguments[0], arguments[1], arguments[2]);
+        var total, m, n, k;
+        var isEnd = false;
+        var tmp = this.TheDate.getFullYear();
+        total = (tmp - 1921) * 365 + Math.floor((tmp - 1921) / 4) + this.madd[this.TheDate.getMonth()] + this.TheDate.getDate() - 38;
+        if (this.TheDate.getYear() % 4 == 0 && this.TheDate.getMonth() > 1) {
+            total++;
+        }
+        for (m = 0;; m++) {
+            k = this.CalendarData[m] < 0xfff ? 11 : 12;
+            for (n = k; n >= 0; n--) {
+                if (total <= 29 + this.GetBit(this.CalendarData[m], n)) {
+                    isEnd = true;
+                    break;
+                }
+                total = total - 29 - this.GetBit(this.CalendarData[m], n);
+            }
+            if (isEnd) break;
+        }
+        this.Year = 1921 + m;
+        this.Month = k - n + 1;
+        this.Day = total;
+        if (k == 12) {
+            if (this.Month == Math.floor(this.CalendarData[m] / 0x10000) + 1) {
+                this.Month = 1 - this.Month;
+            }
+            if (this.Month > Math.floor(this.CalendarData[m] / 0x10000) + 1) {
+                this.Month--;
+            }
+        }
+    },
+    GetcDateString: function GetcDateString() {
+        var tmp = "";
+        tmp += this.HsString.charAt((this.Year - 4) % 10);
+        tmp += this.EbString.charAt((this.Year - 4) % 12);
+        tmp += "年 ";
+        if (this.Month < 1) {
+            tmp += "(闰)";
+            tmp += this.MonString.charAt(-this.Month - 1);
+        } else {
+            tmp += this.MonString.charAt(this.Month - 1);
+        }
+        tmp += "月";
+        tmp += this.Day < 11 ? "初" : this.Day < 20 ? "十" : this.Day < 30 ? "廿" : "三十";
+        if (this.Day % 10 != 0 || this.Day == 10) {
+            tmp += this.NumString.charAt((this.Day - 1) % 10);
+        }
+        return tmp;
+    },
+    GetLunarDay: function GetLunarDay(solarYear, solarMonth, solarDay) {
+        if (solarYear < 1921 || solarYear > 2020) {
+            return "";
+        } else {
+            solarMonth = parseInt(solarMonth) > 0 ? solarMonth - 1 : 11;
+            this.e2c(solarYear, solarMonth, solarDay);
+            return this.GetcDateString();
+        }
+    }
 };
 //# sourceMappingURL=datetimepicker.js.map

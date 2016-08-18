@@ -1,6 +1,6 @@
 # datetimepicker
 
-**本项目的最终目的是实现一个功能比较丰富的日历插件。**
+**本项目的最终目的是实现一个日历插件。**
 
 本项目的实现方式采用jQuery的插件形式，通过一个立即执行函数表达式传入$后为其添加datetimepicker方法
 
@@ -41,7 +41,7 @@
     	$.datetimepicker("#datetimepicker");
     </script>
 
-![](http://i.imgur.com/gaLbsbl.png)
+![](http://i.imgur.com/YGioBZP.png)
 
 
 ----------
@@ -56,7 +56,7 @@
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2016/8/4'],"dateZoom":false});
 	</script>
 
-![](http://i.imgur.com/Ceje0Pf.png)
+![](http://i.imgur.com/ERlKVuj.png)
 
 
 ----------
@@ -71,7 +71,7 @@
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2016/8/4'],"dateZoom":true});
 	</script>
 
-![](http://i.imgur.com/7cNavZs.png)
+![](http://i.imgur.com/hk0muqo.png)
 
 
 ----------
@@ -86,7 +86,7 @@
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2016/8/4'],"dateZoom":false});
 	</script>
 
-![](http://i.imgur.com/P1FZtYd.png)
+![](http://i.imgur.com/OxwIoL7.png)
 
 
 ----------
@@ -113,7 +113,7 @@
     	$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4']});
     </script>
 
-![](http://i.imgur.com/aqC4Vkd.png)
+![](http://i.imgur.com/hlxMkVd.png)
 
 ## 3. “Memo”类型 ##
 
@@ -144,11 +144,11 @@
     	$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4'],"memo-callback":testFunction});
     </script>
 
-![](http://i.imgur.com/2y4FA9U.png)
+![](http://i.imgur.com/gDBTSnj.png)
 
 callback函数结果：
 
-![](http://i.imgur.com/FNri4md.png)
+![](http://i.imgur.com/be7Bkbd.png)
 
 
 （未完待续）
