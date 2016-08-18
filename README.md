@@ -21,7 +21,9 @@
 
 **code**
 
-    <div id="datetimepicker" date-type="Y-M-D"></div>
+    <div id="datetimepicker" date-type="Y-M-D">
+		<input type="text" class="result_show">
+	</div>
     <script type="text/javascript">
     	$.datetimepicker("#datetimepicker"[,option]);
     </script>
@@ -32,7 +34,9 @@
 
 结果如图：
 
-    <div id="datetimepicker" date-type="Y-M-D"></div>
+    <div id="datetimepicker" date-type="Y-M-D">
+		<input type="text" class="result_show">
+	</div>
     <script type="text/javascript">
     	$.datetimepicker("#datetimepicker");
     </script>
@@ -45,7 +49,9 @@
 
 默认不可选中的日期结果如图：
 
-	<div id="datetimepicker" date-type="Y-M-D"></div>
+	<div id="datetimepicker" date-type="Y-M-D">
+		<input type="text" class="result_show">
+	</div>
 	<script type="text/javascript">
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2016/8/4'],"dateZoom":false});
 	</script>
@@ -58,7 +64,9 @@
 
 日期区间选择（不含默认被选中日期）结果如图（目前仅支持本月内日期区间选择，本人觉得跨月选择还是两次唤起日历较好，而且从操作上也差不多）：
 
-	<div id="datetimepicker" date-type="Y-M-D"></div>
+	<div id="datetimepicker" date-type="Y-M-D">
+		<input type="text" class="result_show">
+	</div>
 	<script type="text/javascript">
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2016/8/4'],"dateZoom":true});
 	</script>
@@ -71,7 +79,9 @@
 
 日期区间选择（含默认被选中日期）结果如图：
 
-	<div id="datetimepicker" date-type="Y-M-D"></div>
+	<div id="datetimepicker" date-type="Y-M-D">
+		<input type="text" class="result_show">
+	</div>
 	<script type="text/javascript">
 		$.datetimepicker("#datetimepicker",{"not-allow-selected":['2016/8/4'],"dateZoom":false});
 	</script>
@@ -85,7 +95,9 @@
 
 **code**
 
-    <div id="datetimepicker" date-type="Y-M-D-H-Mi"></div>
+    <div id="datetimepicker" date-type="Y-M-D-H-Mi">
+		<input type="text" class="result_show">
+	</div>
     <script type="text/javascript">
     	$.datetimepicker("#datetimepicker"[,option]);
     </script>
@@ -94,7 +106,9 @@
 
 `$.datetimepicker("#datetimepicker"[,option])`为调用方法，其中`datetimepicker`为关联触发元素的选择器，必选项。第二个参数为初始化配置对象，为可选项，默认为**无不可选日期**和**单日期选择**，其中`not-allow-selected`为默认不可选中的日期数组,在“Y-M-D-H-Mi”型下只可以选择单日期年月日时分秒，不可以选择日期区间。
 
-    <div id="datetimepicker" date-type="Y-M-D-H-Mi"></div>
+    <div id="datetimepicker" date-type="Y-M-D-H-Mi">
+		<input type="text" class="result_show">
+	</div>
     <script type="text/javascript">
     	$.datetimepicker("#datetimepicker",{"not-allow-selected":['2015/8/4','2016/8/4']});
     </script>
@@ -105,7 +119,9 @@
 
 ** code **
 
-    <div id="datetimepicker" date-type="Memo"></div>
+    <div id="datetimepicker" date-type="Memo">
+		<input type="text" class="result_show">
+	</div>
     <script type="text/javascript">
     	$.datetimepicker("#datetimepicker",{"memo-callback":callback[,option]});
     </script>
@@ -114,7 +130,9 @@
 
 `$.datetimepicker("#datetimepicker",{"memo-callback":callback[,option]});`为调用方法，其中`datetimepicker`为关联触发元素的选择器，必选项。第二个参数为初始化配置对象，第二个参数的`“memo-callback”`为必填项，`callback`会自动传入日历返回的数据，然后根据数据自定义数据处理方法，其中数据格式为：`[{name:"memoTime",value:"xxxx"},{name:"memoAddress",value:"xxxx"},{name:"memoTheme",value:"xxxx"}]`;其他为可选项，默认为**无不可选日期**，同时`“Memo”`类型下仅支持`“Y-M-D-H-Mi”`类型的日历类型，其中`not-allow-selected`为默认不可选中的日期数组。
 
-    <div id="datetimepicker" date-type="Memo"></div>
+    <div id="datetimepicker" date-type="Memo">
+		<input type="text" class="result_show">
+	</div>
     <script type="text/javascript">
     	function testFunction(){
     		var result = {};
