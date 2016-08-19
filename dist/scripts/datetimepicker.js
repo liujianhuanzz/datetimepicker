@@ -566,7 +566,7 @@ Calender.prototype = {
 				e.stopPropagation();
 				e.preventDefault();
 
-				var offsetLeft = e.clientX - this.clientLeft;
+				var offsetLeft = e.clientX - this.clientLeft + $(".blankPanel")[0].clientLeft;
 				var index = [].concat(_toConsumableArray($(".timeMovedDiv"))).indexOf(this.firstElementChild);
 				//计算小时值
 				if (index === 0) {
@@ -815,10 +815,35 @@ var Util = {
 		}
 	},
 	calSpecialDate: function calSpecialDate(YaLdate, YiLdate) {
+		//先声明一个Generater函数
+		/*function* objectEntries(){
+  	let propkeys = Object.keys(this);
+  	for(let propkey of propkeys){
+  		yield [propkey,this[propkey]];
+  	}
+  }*/
+
 		var resObj = { "isSpec": false, "specDate": {} };
 
 		var YaLSpecDate = { "11": "元旦", "38": "妇女节", "51": "劳动节", "61": "儿童节", "71": "建党节", "81": "建军节", "101": "国庆节", "1225": "圣诞节" };
 		var YiLSpecDate = { "正月初一": "春节", "正月十五": "元宵节", "五月初五": "端午节", "七月十五": "中元节", "八月十五": "中秋节", "九月初九": "重阳节" };
+		//部署iterator接口
+		/*YaLSpecDate[Symbol.iterator] = objectEntries;
+  YiLSpecDate[Symbol.iterator] = objectEntries;
+  for(let [key,value] of YaLSpecDate){
+  	if(key === YaLdate){
+  		resObj["isSpec"] = true;
+  		resObj["specDate"] = value;
+  		break;
+  	}
+  }
+  for(let [key,value] of YiLSpecDate){
+  	if(key === YiLdate){
+  		resObj["isSpec"] = true;
+  		resObj["specDate"] = value;
+  		break;
+  	}
+  }*/
 		for (var key_YaL in YaLSpecDate) {
 			if (YaLdate === key_YaL) {
 				resObj["isSpec"] = true;
